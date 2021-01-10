@@ -1,0 +1,116 @@
+service: Reimbursement
+# app and org for use with dashboard.serverless.com
+app: Reimbursement-Serverless
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: "2"
+
+custom:
+  s3Bucket: reimbursement-receipt-bucket
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  profile: default
+  region: us-east-2
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:GetItem"
+        - "dynamodb:BatchGetItem"
+        - "dynamodb:Query"
+        - "dynamodb:PutItem"
+        - "dynamodb:UpdateItem"
+        - "dynamodb:DeleteItem"
+        - "dynamodb:BatchWriteItem"
+        - "dynamodb:Scan"
+      Resource:
+        Fn::GetAtt:
+          - reimbursementTable
+          - Arn
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+        - "s3:PutObjectAcl"
+        - "s3:GetObject"
+        - "s3:GetObjectAcl"
+        - "s3:GetBucketPolicy"
+        - "s3:PutBucketPolicy"
+        - "s3:ListBucket"
+      Resource:
+        - !Sub arn:aws:s3:::${self:custom.s3Bucket}/*
+
+functions:
+  getReimbursements:
+    handler: lambdas/endpoints/getReimbursements.handler
+    events:
+      - http:
+          path: reimbursements/
+          method: get
+  postReimbursement:
+    handler: lambdas/endpoints/postReimbursement.handler
+    events:
+      - http:
+          path: reimbursements/
+          method: post
+  # getReimbursementById:
+  #   handler: handler.getReimbursement
+  #   events:
+  #     - http:
+  #         path: reimbursement/{id}
+  #         method: get
+  # postReimbursementImage:
+  #   handler: handler.postReimbursementImage
+  #   events:
+  #     - http:
+  #         path: reimbursement/{id}/image
+  #         method: post
+
+resources:
+  Resources:
+    reimbursementTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Reimbursements
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    reimbursementReceiptBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.s3Bucket}
+#    Define function environment variables here
+#    environment:
+#      variable2: value2
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+# [
+#   {
+#     'repeat(5)': {
+#       id: '{{index()}}',
+#       amount: '{{floating(1000, 4000, 2, "$0,0.00")}}',
+#       timeSubmitted: '{{date()}}',
+#       timeResolved: '{{date()}}',
+#       description: '{{lorem(1, "sentences")}}',
+#       receipt: null,
+#       status: 'Pending',
+#       type(tags) {
+#         const types = ['Lodging', 'Travel', 'Food', 'Other'];
+#         return types[tags.integer(0, types.length - 1)];
+#       },
+#       authorId: '{{integer([10], [4000])}}',
+#       resolver: '{{integer([10], [4000])}}',
+
+#     }
+#   }
+# ]
