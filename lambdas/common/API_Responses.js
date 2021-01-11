@@ -11,6 +11,18 @@ const Responses = {
     };
   },
 
+  _201(data = {}) {
+    return {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Origin": "*",
+      },
+      statusCode: 201,
+      body: JSON.stringify(data),
+    };
+  },
+
   _204(data = {}) {
     return {
       headers: {

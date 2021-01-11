@@ -64,12 +64,12 @@ functions:
       - http:
           path: reimbursements/{id}
           method: get
-  # postReimbursementImage:
-  #   handler: handler.postReimbursementImage
-  #   events:
-  #     - http:
-  #         path: reimbursement/{id}/image
-  #         method: post
+  postReimbursementImage:
+    handler: lambdas/endpoints/postReimbursementImage.handler
+    events:
+      - http:
+          path: reimbursements/image/{id}
+          method: post
 
 resources:
   Resources:

@@ -56,5 +56,28 @@ const Dynamo = {
 
     return item;
   },
+
+  async postReimbursementImage(itemId, imageUrl) {
+    const params = {
+      TableName: TABLE_NAME,
+      Key: {
+        id: itemId,
+      },
+      UpdateExpression: "set receipt = :r",
+      ExpressionAttributeValues: {
+        ":r": imageUrl,
+      },
+      ReturnValues: "UPDATED_NEW",
+    };
+
+    await dynamo
+      .update(params)
+      .promise()
+      .catch((err) => {
+        throw err;
+      });
+
+    return;
+  },
 };
 module.exports = Dynamo;
