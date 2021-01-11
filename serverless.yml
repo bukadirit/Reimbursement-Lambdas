@@ -58,12 +58,12 @@ functions:
       - http:
           path: reimbursements/
           method: post
-  # getReimbursementById:
-  #   handler: handler.getReimbursement
-  #   events:
-  #     - http:
-  #         path: reimbursement/{id}
-  #         method: get
+  getReimbursementById:
+    handler: lambdas/endpoints/getReimbursementById.handler
+    events:
+      - http:
+          path: reimbursements/{id}
+          method: get
   # postReimbursementImage:
   #   handler: handler.postReimbursementImage
   #   events:

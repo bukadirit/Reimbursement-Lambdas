@@ -23,6 +23,24 @@ const Dynamo = {
     return data.Items;
   },
 
+  async getReimbursementById(itemId) {
+    const params = {
+      Key: {
+        id: itemId,
+      },
+      TableName: TABLE_NAME,
+    };
+
+    const data = await dynamo
+      .get(params)
+      .promise()
+      .catch((err) => {
+        throw err;
+      });
+
+    return data.Item;
+  },
+
   async postReimbursement(item) {
     const params = {
       TableName: TABLE_NAME,

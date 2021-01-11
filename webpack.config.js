@@ -7,5 +7,5 @@ module.exports = {
       allowlist: ["uuid"],
     }),
   ],
-  mode: "production",
+  mode: "none",
 };
