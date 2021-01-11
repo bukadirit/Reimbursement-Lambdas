@@ -5,7 +5,7 @@ const Dynamo = require("../common/DynamoDB_Methods");
 exports.handler = async (event) => {
   console.log("event", event);
 
-  const reimbursements = await Dynamo.getReimbursements().catch((err) => {
+  let reimbursements = await Dynamo.getReimbursements().catch((err) => {
     console.log("error in Dynamo Get", err);
     return Responses._500({
       message: "An error has occured. The request was not processed.",

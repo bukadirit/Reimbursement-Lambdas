@@ -1,4 +1,5 @@
 const AWS = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "Reimbursements";
@@ -19,7 +20,7 @@ const Dynamo = {
         throw err;
       });
 
-    return data;
+    return data.Items;
   },
 
   async postReimbursement(item) {
