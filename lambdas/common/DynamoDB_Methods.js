@@ -3,13 +3,14 @@ const { v4: uuidv4 } = require("uuid");
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = "Reimbursements";
+const INDEX_NAME = "authorIndex";
 
 const Dynamo = {
   async getReimbursements() {
     const params = {
       TableName: TABLE_NAME,
       ProjectionExpression:
-        "id, amount, description, receipt, timeSubmitted, #S, #T, author, timeResolved, resolver",
+        "id, amount, description, receipt, timeSubmitted, #S, #T, authorId, authorDetails, timeResolved, resolverId, resolverDetails",
       ExpressionAttributeNames: { "#S": "status", "#T": "type" },
     };
 
@@ -25,20 +26,41 @@ const Dynamo = {
 
   async getReimbursementById(itemId) {
     const params = {
-      Key: {
-        id: itemId,
-      },
       TableName: TABLE_NAME,
+      KeyConditionExpression: "id = :itemId",
+      ExpressionAttributeValues: {
+        ":itemId": itemId,
+      },
     };
 
     const data = await dynamo
-      .get(params)
+      .query(params)
+      .promise()
+      .catch((err) => {
+        throw err;
+      });
+    console.log(data);
+    return data.Items;
+  },
+
+  async getReimbursementByAuthorId(itemId) {
+    const params = {
+      TableName: TABLE_NAME,
+      IndexName: INDEX_NAME,
+      FilterExpression: "authorId = :AuthorId",
+      ExpressionAttributeValues: {
+        ":AuthorId": itemId,
+      },
+    };
+
+    const data = await dynamo
+      .scan(params)
       .promise()
       .catch((err) => {
         throw err;
       });
 
-    return data.Item;
+    return data;
   },
 
   async postReimbursement(item) {

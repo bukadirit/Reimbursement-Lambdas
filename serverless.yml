@@ -11,6 +11,7 @@ package:
 
 custom:
   s3Bucket: reimbursement-receipt-bucket
+  dynamoTable: Reimbursements
 
 provider:
   name: aws
@@ -30,9 +31,8 @@ provider:
         - "dynamodb:BatchWriteItem"
         - "dynamodb:Scan"
       Resource:
-        Fn::GetAtt:
-          - reimbursementTable
-          - Arn
+        - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${self:custom.dynamoTable}
+        - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${self:custom.dynamoTable}/index/*
     - Effect: "Allow"
       Action:
         - "s3:PutObject"
@@ -64,6 +64,12 @@ functions:
       - http:
           path: reimbursements/{id}
           method: get
+  getReimbursementByAuthorId:
+    handler: lambdas/endpoints/getReimbursementByAuthorId.handler
+    events:
+      - http:
+          path: reimbursements/author/{id}
+          method: get
   postReimbursementImage:
     handler: lambdas/endpoints/postReimbursementImage.handler
     events:
@@ -76,13 +82,28 @@ resources:
     reimbursementTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: Reimbursements
+        TableName: ${self:custom.dynamoTable}
         AttributeDefinitions:
           - AttributeName: id
+            AttributeType: S
+          - AttributeName: timeSubmitted
+            AttributeType: S
+          - AttributeName: authorId
             AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+          - AttributeName: timeSubmitted
+            KeyType: RANGE
+        LocalSecondaryIndexes:
+          - IndexName: authorIndex
+            KeySchema:
+              - AttributeName: id
+                KeyType: HASH
+              - AttributeName: authorId
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
     reimbursementReceiptBucket:
       Type: AWS::S3::Bucket
