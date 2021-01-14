@@ -18,5 +18,5 @@ exports.handler = async (event) => {
     });
   }
 
-  return Responses._200({ reimbursements });
+  return Responses._200(reimbursements);
 };

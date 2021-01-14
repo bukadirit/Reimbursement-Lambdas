@@ -32,5 +32,5 @@ exports.handler = async (event) => {
     });
   });
 
-  return Responses._201({ reimbursement });
+  return Responses._201(reimbursement);
 };

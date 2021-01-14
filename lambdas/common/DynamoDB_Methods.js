@@ -60,7 +60,7 @@ const Dynamo = {
         throw err;
       });
 
-    return data;
+    return data.Items;
   },
 
   async postReimbursement(item) {
@@ -89,6 +89,35 @@ const Dynamo = {
       ExpressionAttributeValues: {
         ":r": imageUrl,
       },
+      ReturnValues: "UPDATED_NEW",
+    };
+
+    await dynamo
+      .update(params)
+      .promise()
+      .catch((err) => {
+        throw err;
+      });
+
+    return;
+  },
+
+  async updateReimbursementStatus(itemId, item) {
+    const params = {
+      TableName: TABLE_NAME,
+      Key: {
+        id: itemId,
+        timeSubmitted: item.timeSubmitted,
+      },
+      UpdateExpression:
+        "SET #S = :s, timeResolved = :tr, resolverId = :ri, resolverDetails = :rd",
+      ExpressionAttributeValues: {
+        ":s": item.status,
+        ":tr": item.timeResolved,
+        ":ri": item.resolverId,
+        ":rd": item.resolverDetails,
+      },
+      ExpressionAttributeNames: { "#S": "status" },
       ReturnValues: "UPDATED_NEW",
     };
 

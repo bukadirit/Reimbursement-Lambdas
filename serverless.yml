@@ -76,6 +76,12 @@ functions:
       - http:
           path: reimbursements/image/{id}
           method: post
+  updateReimbursementStatus:
+    handler: lambdas/endpoints/updateReimbursementStatus.handler
+    events:
+      - http:
+          path: reimbursements/update/{id}
+          method: post
 
 resources:
   Resources:
