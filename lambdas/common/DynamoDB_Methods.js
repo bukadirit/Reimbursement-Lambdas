@@ -79,11 +79,12 @@ const Dynamo = {
     return item;
   },
 
-  async postReimbursementImage(itemId, imageUrl) {
+  async postReimbursementImage(itemId, inTime, imageUrl) {
     const params = {
       TableName: TABLE_NAME,
       Key: {
         id: itemId,
+        timeSubmitted: inTime,
       },
       UpdateExpression: "set receipt = :r",
       ExpressionAttributeValues: {

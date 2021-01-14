@@ -13,14 +13,18 @@ exports.handler = async (event) => {
     });
   }
 
-  const imageUrl = await S3.uploadImage(item.base64).catch((err) => {
+  const imageUrl = await S3.uploadImage(item.image.base64).catch((err) => {
     console.log("error in S3 write", err);
     return Responses._500({
       message: "An error has occured. The request was not processed.",
     });
   });
 
-  await Dynamo.postReimbursementImage(itemId, imageUrl).catch((err) => {
+  await Dynamo.postReimbursementImage(
+    itemId,
+    item.timeSubmitted,
+    imageUrl
+  ).catch((err) => {
     console.log("error in Dynamo Get", err);
     return Responses._500({
       message: "An error has occured. The request was not processed.",
